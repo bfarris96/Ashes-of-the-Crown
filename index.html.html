@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ashes of the Crown</title>
+  <style>
+    :root {
+      --bg1: #1a1020;
+      --bg2: #2a1630;
+      --bg3: #120b18;
+      --panel: rgba(255, 255, 255, 0.06);
+      --panel-border: rgba(255, 255, 255, 0.14);
+      --text: #f4e9ff;
+      --muted: rgba(244, 233, 255, 0.78);
+      --button: #f0c8ff;
+      --button-text: #2a1434;
+      --accent: #ffd9ff;
+      --glow: rgba(255, 220, 255, 0.2);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Georgia, serif;
+      background: linear-gradient(180deg, var(--bg1), var(--bg2) 50%, var(--bg3));
+      color: var(--text);
+    }
+
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #topbar {
+      padding: 14px 18px 0;
+      display: flex;
+      justify-content: center;
+    }
+
+    #logo {
+      max-width: 1080px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--panel-border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    #logo .titlewrap {
+      min-width: 0;
+    }
+
+    #logo h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      line-height: 1.05;
+      color: #ffe6ff;
+      text-shadow: 0 0 18px var(--glow);
+    }
+
+    #logo .tagline {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #logo .logoButtons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    #logo .logoButtons button {
+      width: auto;
+      margin: 0;
+      padding: 10px 14px;
+      white-space: nowrap;
+    }
+
+    #mainLayout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(260px, 0.8fr);
+      gap: 18px;
+      max-width: 1080px;
+      width: 100%;
+      margin: 18px auto 0;
+      padding: 0 18px 22px;
+    }
+
+    @media (max-width: 880px) {
+      #mainLayout {
+        grid-template-columns: 1fr;
+      }
+      #logo {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      #logo .logoButtons {
+        justify-content: flex-start;
+      }
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      backdrop-filter: blur(4px);
+    }
+
+    .hud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      opacity: 0.97;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+    }
+
+    .story p {
+      margin: 0 0 14px;
+      white-space: pre-wrap;
+      font-size: 16px;
+    }
+
+    .small {
+      font-size: 13px;
+      opacity: 0.84;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+
+    .bio {
+      margin: 10px 0 14px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .bio strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--accent);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      margin: 10px 0 0;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: 12px;
+      background: var(--button);
+      color: var(--button-text);
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      font-family: Georgia, serif;
+    }
+
+    button:hover { filter: brightness(1.03); }
+
+    .sideTitle {
+      margin: 0 0 10px;
+      font-size: 16px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .sideBlock {
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .sideBlock:last-child {
+      border-bottom: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .sideList {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .sideList li {
+      margin-bottom: 8px;
+    }
+
+    .meter {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+
+    .meter > div {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,217,255,0.95), rgba(173, 111, 255, 0.95));
+      width: 0%;
+    }
+
+    .miniStat {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .inlineNote {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="topbar">
+      <div id="logo">
+        <div class="titlewrap">
+          <h1>Ashes of the Crown</h1>
+          <div class="tagline">A knight, a prince, and the dragon that took him into the dark.</div>
+        </div>
+        <div class="logoButtons">
+          <button id="saveBtn">Save</button>
+          <button id="continueBtn">Continue</button>
+          <button id="newBtn">New Game</button>
+          <button id="guideBtn">Companion Guide</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="mainLayout">
+      <main id="game"></main>
+      <aside id="sidePanel"></aside>
+    </div>
+  </div>
+
+  <script>
+    const SAVE_KEY = "mariah_scott_quest_save_v3";
+
+    const companionMeta = {
+      jasmine: {
+        name: "Jasmine",
+        role: "Princess and secret-route expert",
+        bio: "She knows the castle’s tunnels, hidden doors, and the quickest way through court nonsense. Sharp, observant, and not romantic with the main cast."
+      },
+      anderson: {
+        name: "Anderson",
+        role: "Blacksmith’s daughter and frontline fighter",
+        bio: "She swings first, protects the poor, and trusts action over speeches. Fierce, loyal, and impossible to ignore."
+      },
+      dahlia: {
+        name: "Dahlia",
+        role: "Mage and truth-reader",
+        bio: "Blue fire in her hands, lies in her sights. Brilliant, beautiful, and excellent at spotting deception before it blooms."
+      },
+      bailey: {
+        name: "Bailey",
+        role: "Stable hand and tracker",
+        bio: "She reads tracks, animals, and tiny shifts in feeling better than most people read maps. Awkward in conversation, but deeply observant."
+      },
+      shayne: {
+        name: "Shayne",
+        role: "Court advisor and dragon researcher",
+        bio: "Scott’s best friend, worried by nature, and extremely useful when the mission needs strategy, money sense, or dragon intel."
+      }
+    };
+
+    function freshState() {
+      return {
+        courage: 0,
+        compassion: 0,
+        cunning: 0,
+        scott: 3,
+        approval: {
+          jasmine: 0,
+          anderson: 0,
+          dahlia: 0,
+          bailey: 0,
+          shayne: 0
+        },
+        party: [],
+        flags: {}
+      };
+    }
+
+    function freshUI() {
+      return {
+        screen: "title",
+        picker: null,
+        message: ""
+      };
+    }
+
+    let state = freshState();
+    let ui = freshUI();
+
+    function companionKeys() {
+      return Object.keys(companionMeta);
+    }
+
+    function has(key) {
+      return state.party.includes(key);
+    }
+
+    function nameOf(key) {
+      return companionMeta[key].name;
+    }
+
+    function setFlag(key) {
+      state.flags[key] = true;
+    }
+
+    function seen(key) {
+      return !!state.flags[key];
+    }
+
+    function add(stat, amount) {
+      state[stat] += amount;
+    }
+
+    function adjustApproval(key, amount) {
+      state.approval[key] += amount;
+    }
+
+    function saveGame() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ui }));
+        ui.message = "Game saved.";
+        renderShell();
+        render();
+      } catch (e) {}
+    }
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return false;
+        const data = JSON.parse(raw);
+        if (!data || !data.state || !data.ui) return false;
+        state = data.state;
+        ui = data.ui;
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function clearSave() {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch (e) {}
+    }
+
+    function resetGame() {
+      state = freshState();
+      ui = freshUI();
+    }
+
+    function setScreen(screen) {
+      ui.screen = screen;
+      ui.picker = null;
+      ui.message = "";
+      renderShell();
+      render();
+      saveGameToStorageOnly();
+    }
+
+    function saveGameToStorageOnly() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ state, ui }));
+      } catch (e) {}
+    }
+
+    function renderShell() {
+      const canContinue = !!localStorage.getItem(SAVE_KEY);
+      document.getElementById("continueBtn").style.opacity = canContinue ? "1" : "0.45";
+      document.getElementById("continueBtn").disabled = !canContinue;
+      document.getElementById("saveBtn").disabled = ui.screen === "title";
+    }
+
+    function renderPanel() {
+      const panel = document.getElementById("sidePanel");
+      const party = state.party.length ? state.party.map(nameOf).join(", ") : "none";
+
+      const approvalRows = companionKeys().map(key => {
+        const value = state.approval[key];
+        const width = Math.max(0, Math.min(100, (value + 4) * 12.5));
+        return `
+          <div class="miniStat">${companionMeta[key].name}: ${value}</div>
+          <div class="meter"><div style="width:${width}%"></div></div>
+        `;
+      }).join("");
+
+      const currentParty = state.party.length
+        ? state.party.map(key => `<li><strong>${companionMeta[key].name}</strong> — ${companionMeta[key].role}</li>`).join("")
+        : `<li>No companions selected right now.</li>`;
+
+      const pickNote = ui.screen === "picker"
+        ? `<div class="inlineNote">On the selection screen, Mariah can choose one companion, all companions, or any number in between.</div>`
+        : "";
+
+      panel.innerHTML = `
+        <div class="card">
+          <div class="sideBlock">
+            <div class="sideTitle">Stats</div>
+            <div class="miniStat">Courage: ${state.courage}</div>
+            <div class="miniStat">Compassion: ${state.compassion}</div>
+            <div class="miniStat">Cunning: ${state.cunning}</div>
+            <div class="miniStat">Scott bond: ${state.scott}</div>
+          </div>
+
+          <div class="sideBlock">
+            <div class="sideTitle">Current Party</div>
+            <ul class="sideList">${currentParty}</ul>
+            ${pickNote}
+          </div>
+
+          <div class="sideBlock">
+            <div class="sideTitle">Companion Approval</div>
+            ${approvalRows}
+          </div>
+
+          <div class="sideBlock">
+            <div class="sideTitle">Companion Notes</div>
+            <ul class="sideList">
+              <li><strong>Jasmine</strong> knows secret tunnels and hidden exits.</li>
+              <li><strong>Anderson</strong> leads with steel and protects the weak.</li>
+              <li><strong>Dahlia</strong> reads lies and works blue fire.</li>
+              <li><strong>Bailey</strong> tracks and notices what others miss.</li>
+              <li><strong>Shayne</strong> brings strategy, worry, and dragon sense.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function companionBiosHtml() {
+      return companionKeys().map(key => `
+        <div class="bio">
+          <strong>${companionMeta[key].name} — ${companionMeta[key].role}</strong>
+          ${companionMeta[key].bio}
+        </div>
+      `).join("");
+    }
+
+    function partyPicker(title, intro, nextScene) {
+      ui.screen = "picker";
+      ui.picker = { title, intro, nextScene };
+      ui.message = "";
+      renderShell();
+      render();
+      saveGameToStorageOnly();
+    }
+
+    function renderPicker() {
+      const game = document.getElementById("game");
+      const p = ui.picker;
+      const selected = state.party.length
+        ? state.party.map(nameOf).join(", ")
+        : "none";
+
+      game.innerHTML = `
+        <div class="card story">
+          <div class="hud">
+            <div class="pill">Courage: ${state.courage}</div>
+            <div class="pill">Compassion: ${state.compassion}</div>
+            <div class="pill">Cunning: ${state.cunning}</div>
+            <div class="pill">Scott: ${state.scott}</div>
+            <div class="pill">Party: ${selected}</div>
+          </div>
+          <p>${p.title}</p>
+          <p>${p.intro}</p>
+          <p class="small">Mar iah may choose any number of companions here — one, several, all five, or none. Read their strengths below, then toggle the names you want.</p>
+          ${companionBiosHtml()}
+          ${companionKeys().map(key => `
+            <button data-key="${key}">${state.party.includes(key) ? "✓ " : ""}${companionMeta[key].name}</button>
+          `).join("")}
+          <button id="selectAll">Select All</button>
+          <button id="clearAll">Clear All</button>
+          <button id="continue">Continue</button>
+        </div>
+      `;
+
+      game.querySelectorAll("button[data-key]").forEach(btn => {
+        btn.onclick = () => {
+          const key = btn.getAttribute("data-key");
+          if (state.party.includes(key)) {
+            state.party = state.party.filter(k => k !== key);
+          } else {
+            state.party.push(key);
+          }
+          saveGameToStorageOnly();
+          render();
+        };
+      });
+
+      game.querySelector("#selectAll").onclick = () => {
+        state.party = companionKeys();
+        saveGameToStorageOnly();
+        render();
+      };
+
+      game.querySelector("#clearAll").onclick = () => {
+        state.party = [];
+        saveGameToStorageOnly();
+        render();
+      };
+
+      game.querySelector("#continue").onclick = () => {
+        ui.screen = p.nextScene;
+        ui.picker = null;
+        saveGameToStorageOnly();
+        renderShell();
+        render();
+      };
+    }
+
+    function show(text, choices = [], extra = "") {
+      const game = document.getElementById("game");
+      game.innerHTML = `
+        <div class="card story">
+          <div class="hud">
+            <div class="pill">Courage: ${state.courage}</div>
+            <div class="pill">Compassion: ${state.compassion}</div>
+            <div class="pill">Cunning: ${state.cunning}</div>
+            <div class="pill">Scott: ${state.scott}</div>
+            <div class="pill">Party: ${state.party.length ? state.party.map(nameOf).join(", ") : "none"}</div>
+          </div>
+          <p>${text}</p>
+          ${extra}
+          ${choices.map(c => `<button>${c.text}</button>`).join("")}
+        </div>
+      `;
+
+      const buttons = game.querySelectorAll("button");
+      choices.forEach((choice, i) => {
+        buttons[i].onclick = choice.action;
+      });
+    }
+
+    function end(text) {
+      show(
+        text,
+        [
+          { text: "Play Again", action: () => { clearSave(); resetGame(); renderShell(); render(); } },
+          { text: "Back to Title", action: () => { ui.screen = "title"; ui.picker = null; ui.message = ""; renderShell(); render(); } }
+        ]
+      );
+    }
+
+    function guideScene() {
+      ui.screen = "guide";
+      renderShell();
+      render();
+    }
+
+    function titleScene() {
+      const game = document.getElementById("game");
+      game.innerHTML = `
+        <div class="card story">
+          <p style="font-size:26px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;">Title Screen</p>
+          <p>
+            Mariah, the kingdom’s knight, rides to rescue Prince Scott after a dragon takes him from the balcony.
+            Choose companions, build bonds, and decide whether love, courage, or cunning will bring him home.
+          </p>
+          <p class="small">
+            Save progress is stored in your browser. The companion panel on the right always shows who is with Mariah, what they do best, and how they feel about the journey.
+          </p>
+          ${ui.message ? `<p class="small">${ui.message}</p>` : ""}
+          <button id="newGame">New Game</button>
+          <button id="seeGuide">Companion Guide</button>
+          <button id="saveNow" ${localStorage.getItem(SAVE_KEY) ? "" : "disabled"}>Save</button>
+          <button id="continueFromTitle" ${localStorage.getItem(SAVE_KEY) ? "" : "disabled"}>Continue</button>
+        </div>
+      `;
+
+      game.querySelector("#newGame").onclick = () => {
+        clearSave();
+        resetGame();
+        ui.screen = "intro";
+        renderShell();
+        render();
+        saveGameToStorageOnly();
+      };
+
+      game.querySelector("#seeGuide").onclick = () => {
+        ui.screen = "guide";
+        renderShell();
+        render();
+      };
+
+      game.querySelector("#saveNow").onclick = () => {
+        ui.message = "Game saved.";
+        saveGameToStorageOnly();
+        renderShell();
+        render();
+      };
+
+      game.querySelector("#continueFromTitle").onclick = () => {
+        continueGame();
+      };
+    }
+
+    function guideSceneRender() {
+      const game = document.getElementById("game");
+      game.innerHTML = `
+        <div class="card story">
+          <p style="font-size:26px; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;">Companion Guide</p>
+          ${companionBiosHtml()}
+          <p class="small">
+            Mariah can choose any number of companions at each selection screen — one, several, all five, or none.
+            Their approval changes how they respond, and some can leave if Mariah treats them badly or ignores what they value.
+          </p>
+          <button id="backToTitle">Back to Title</button>
+          <button id="startFromGuide">Start New Game</button>
+        </div>
+      `;
+
+      game.querySelector("#backToTitle").onclick = () => {
+        ui.screen = "title";
+        ui.picker = null;
+        renderShell();
+        render();
+      };
+
+      game.querySelector("#startFromGuide").onclick = () => {
+        clearSave();
+        resetGame();
+        ui.screen = "intro";
+        renderShell();
+        render();
+        saveGameToStorageOnly();
+      };
+    }
+
+    function introScene() {
+      show(
+`The balcony is warm with candlelight and summer air.
+
+Mariah, tall and broad-shouldered in her knight's cloak, stands with Prince Scott beside the stone rail. His smile, as always, looks like it could end a war or start one.
+
+"You keep staring," Scott says softly, amused. "Should I be worried?"
+
+"Only if you keep looking this handsome in moonlight," Mariah answers.
+
+He laughs under his breath. "Dangerous words from a knight who carries a sword like a promise."
+
+Before she can answer, the sky cracks with a roar.
+
+A dragon drops from the dark and seizes Scott in a blast of fire and claws.
+
+"Mariah!" he shouts as the beast vanishes into the clouds.
+
+Moments later, the king grabs her hands with shaking fury and fear. "Bring my son home."
+
+And so the kingdom's songs change key.`,
+        [
+          { text: "Swear to save Scott", action: kingAppeal },
+          { text: "Demand every detail first", action: () => { add("cunning", 1); kingAppeal(); } }
+        ]
+      );
+    }
+
+    function kingAppeal() {
+      show(
+`The king bows his head, more father than ruler now.
+
+"The dragon struck near the northern ridge. Scott was taken alive. If there is a way to bring him back, it will be you."
+
+Mariah feels the weight of the crown, the kingdom, and Scott's vanished smile all at once.
+
+Somewhere beyond the mountain, he is waiting.`,
+        [
+          { text: "Set out immediately", action: roadPartySelect },
+          { text: "Ask for resources and maps", action: () => { add("cunning", 1); roadPartySelect(); } }
+        ]
+      );
+    }
+
+    function roadPartySelect() {
+      partyPicker(
+        "Road to the north",
+        "Choose who rides with you on the first leg of the journey.",
+        "roadHub"
+      );
+    }
+
+    function roadHub() {
+
+  const revisit = seen("roadHub");
+  if (!revisit) setFlag("roadHub");
+
+  let text = revisit
+    ? `Back on the road, the horses’ hooves keep the rhythm while Mariah and her companions pick up the conversation where they left off.
+The air is colder now, but Scott is still the center of every thought.`
+    : `The road narrows beneath gray trees and old stone markers.
+
+Mariah can feel Scott in every mile, every heartbeat of silence.`;
+
+  if (has("jasmine"))  text += "\nJasmine walks like she already knows three ways around the kingdom's eyes, and one way through its walls.";
+  if (has("bailey"))    text += "\nBailey keeps glancing at footprints, bird tracks, and the wind as if all of them might confess something.";
+  if (has("dahlia"))    text += "\nDahlia's blue fire flickers low in her palm, bright whenever she suspects a lie.";
+  if (has("anderson"))  text += "\nAnderson rolls her shoulders like the world itself is something she could wrestle.";
+  if (has("shayne"))    text += "\nShayne has already started muttering about supplies, routes, and the price of everyone else's poor judgment.";
+
+  if (has("jasmine") && !seen("roadJasmine")) text += "\nJasmine catches Mariah's eye and smirks. 'The king taught you to fight. Scott taught you to worry. I can help with the sneaking.'";
+  if (has("bailey") && !seen("roadBailey"))   text += "\nBailey clears her throat. 'If the dragon left tracks, I can find them. If it didn't, I can still probably find the snacks.'";
+  if (has("dahlia") && !seen("roadDahlia"))   text += "\nDahlia tilts her head. 'If anyone lies to us, I'll know. The trick is deciding whether to let them think they got away with it.'";
+  if (has("anderson") && !seen("roadAnderson")) text += "\nAnderson grins. 'If the dragon has a mouth, I have a sword. That seems fair.'";
+  if (has("shayne") && !seen("roadShayne"))   text += "\nShayne sighs. 'If Scott were here, he'd already have made a joke about my face and my budget.'";
+  if (!seen("roadScott")) text += "\nMariah's thoughts keep turning to Scott's smile, the one that always found her first.";
+
+  const choices = [];
+
+  if (!seen("roadScott")) choices.push({ text: "Trade a private memory of the balcony with Scott", action: roadScottMoment });
+  if (has("jasmine") && !seen("roadJasmine")) choices.push({ text: "Ask Jasmine about secret tunnels and hidden exits", action: roadJasmineMoment });
+  if (has("bailey") && !seen("roadBailey")) choices.push({ text: "Walk beside Bailey and listen to her read the land", action: roadBaileyMoment });
+  if (has("dahlia") && !seen("roadDahlia")) choices.push({ text: "Ask Dahlia how she spots a lie before it blooms", action: roadDahliaMoment });
+  if (has("anderson") && !seen("roadAnderson")) choices.push({ text: "Let Anderson tell you how she really fights", action: roadAndersonMoment });
+  if (has("shayne") && !seen("roadShayne")) choices.push({ text: "Press Shayne for anything he knows about the dragon", action: roadShayneMoment });
+
+  if (has("bailey") && has("dahlia") && !seen("roadBD")) choices.push({ text: "Let Bailey and Dahlia tease each other", action: roadBaileyDahliaBanter });
+  if (has("shayne") && has("anderson") && !seen("roadSA")) choices.push({ text: "Watch Shayne and Anderson bicker like old friends", action: roadShayneAndersonBanter });
+
+  choices.push({ text: "Push onward and camp before dusk", action: villageDetour });
+
+  show(text, choices);
+
+}
+function roadScottMoment() {
+
+  setFlag("roadScott");
+  add("scott", 2);
+  add("courage", 1);
+  show(
+`Mariah lets herself remember the balcony.
+
+Scott's hand had hovered near hers, never quite touching, as if he were asking permission with every breath. He had said, with that maddening wit of his, "If you keep looking at me like that, I'm going to start believing you mean it."
+
+Mariah smiles despite the ache.
+
+"I do mean it," she tells the empty road.
+
+A breeze lifts the edge of her cloak, and she can almost hear him answer: "Good. Because I was hoping you meant that kiss too."
+
+Mariah exhales a laugh that sounds dangerously close to a promise.`,
+    [
+      { text: "Return to the road", action: roadHub }
+    ]
+  );
+
+}
+function roadJasmineMoment() {
+
+  setFlag("roadJasmine");
+  adjustApproval("jasmine", 1);
+  add("cunning", 1);
+  show(
+`Jasmine lowers her voice and points to a vine-choked ridge.
+
+"There are old service tunnels under the chapel ruins. I know three exits, two hidden doors, and one priest who owed me a favor for twenty-eight very embarrassing evenings."
+
+Mariah blinks. "You sound proud of that."
+
+"I am. Court romance is mostly dreadful poetry and inconvenient timing. Mine at least came with useful maps."
+
+Mariah huffs a laugh. "Did any of them write songs about you?"
+
+"Two did," Jasmine says. "One was flattering. One was wildly inaccurate. Both were useful enough to remember."
+
+She tilts her head. "If Scott is waiting in a dragon's cave, I would rather be underestimated than dramatic. Dramatic gets people eaten."`,
+    [
+      { text: "Ask for the tunnel route", action: () => { add("cunning", 1); roadHub(); } },
+      { text: "Tease her about the dreadful poetry", action: () => { adjustApproval("jasmine", 1); roadHub(); } }
+    ]
+  );
+
+}
+function roadBaileyMoment() {
+
+  setFlag("roadBailey");
+  adjustApproval("bailey", 1);
+  add("compassion", 1);
+  show(
+`Bailey crouches beside the muddy verge and touches the ground with surprising tenderness.
+
+"Wolves passed here yesterday. Not many. Hungry, though. The guards probably ignored the tracks because they only protect roads that matter to the rich."
+
+She rises, awkwardly tucking hair behind her ear. "I can tell when an animal is scared. People are worse. They pretend they aren't."
+
+Mariah nods, softer now. "And you?"
+
+Bailey coughs. "I'm very bad at pretending. Probably why animals like me better."
+
+Mariah smiles. "That sounds like honesty."
+
+"It is. Also, horses are less judgmental than most nobles."
+Bailey glances toward the mountains. "If Scott is alive, we still have time to be useful. That's the best kind of hope."`,
+    [
+      { text: "Tell her that honesty is rare and valuable", action: () => { adjustApproval("bailey", 1); roadHub(); } },
+      { text: "Laugh gently and ask her to keep tracking", action: () => { add("cunning", 1); roadHub(); } }
+    ]
+  );
+
+}
+function roadDahliaMoment() {
+
+  setFlag("roadDahlia");
+  adjustApproval("dahlia", 1);
+  add("cunning", 1);
+  show(
+`Dahlia's blue flames wink to life between her fingers, bright enough to paint her green eyes in moonlight.
+
+"People assume flames mean anger," she says. "They don't. Flames mean focus. Truth. Sometimes warning."
+
+She glances at Mariah. "I was born with this power. The court called it a curse. I call it a blessing with dramatic lighting."
+
+Mariah smiles. "And deception?"
+
+Dahlia's grin turns sharp. "Lies always trip on their own hems. I just help them fall."
+
+Mariah watches the blue light curl and brighten. "Does it ever frighten people?"
+
+"Of course." Dahlia lowers her hand. "The wrong people. The ones who lie best are always the most afraid of being seen."
+
+Then, softer: "Scott knows how to look brave. I suspect you do too."`,
+    [
+      { text: "Ask her to watch for lies ahead", action: () => { add("cunning", 1); roadHub(); } },
+      { text: "Tell her the blue fire suits her", action: () => { adjustApproval("dahlia", 1); roadHub(); } }
+    ]
+  );
+
+}
+function roadAndersonMoment() {
+
+  setFlag("roadAnderson");
+  adjustApproval("anderson", 1);
+  add("courage", 1);
+  show(
+`Anderson draws her sword with the ease of somebody drawing a breath.
+
+"My father says I swing first and speak later," she says. "He's right, but in my defense, the world usually deserves it."
+
+She looks toward a broken fence line. "Guards protect the castle. I protect the people the castle forgets."
+
+Mariah studies her for a moment and sees exactly why the poor already whisper Anderson's name with gratitude.
+
+"And if the dragon comes?"
+
+Anderson grins. "Then it gets introduced to me properly."
+
+She rests the blade on one shoulder. "People think courage is not being scared. That is nonsense. Courage is being scared and stepping forward anyway."`,
+    [
+      { text: "Respect her instinct to fight first", action: () => { adjustApproval("anderson", 1); roadHub(); } },
+      { text: "Offer to stand beside her in any brawl", action: () => { add("courage", 1); roadHub(); } }
+    ]
+  );
+
+}
+function roadShayneMoment() {
+
+  setFlag("roadShayne");
+  adjustApproval("shayne", 1);
+  add("cunning", 1);
+  show(
+`Shayne holds up a folded list of supplies like it is a sacred text.
+
+"Scott would say this is where I get dramatic," he mutters. "He'd be right. But also, if the dragon is real, we'd better know whether we're dealing with fire, poison, hoarding, or all three."
+
+Mariah arches a brow. "You sound worried."
+
+Shayne's mouth tightens. "I am. Scott is very good at ending wars and starting romances. He's less good at surviving dragons."
+
+Then, after a beat: "He trusts you. More than anyone else, I think."
+
+Mariah studies him. "And you trust him."
+
+"Annoyingly, yes." Shayne folds the note back up. "He makes impossible things sound manageable. Which is rude, because then I believe him."`,
+    [
+      { text: "Promise you'll bring Scott's words back to him", action: () => { add("scott", 1); roadHub(); } },
+      { text: "Ask what he knows about dragon behavior", action: () => { add("cunning", 1); roadHub(); } }
+    ]
+  );
+
+}
+function roadBaileyDahliaBanter() {
+      setFlag("roadBD");
+      adjustApproval("bailey", 1);
+      adjustApproval("dahlia", 1);
+      show(
+`Bailey and Dahlia fall into step together and immediately start pretending they are not enjoying each other's company.
+
+Bailey points at a crooked branch. "You saw that too, right?"
+
+Dahlia smirks. "I saw you staring at me instead of the branch."
+
+Bailey flushes. "I was checking for traps."
+
+"Mm." Dahlia's grin deepens. "Then you're very bad at pretending."
+
+Mariah coughs, hiding a smile.`,
+        [
+          { text: "Tell Bailey she is not subtle", action: () => { adjustApproval("bailey", 1); roadHub(); } },
+          { text: "Tell Dahlia she is a menace", action: () => { adjustApproval("dahlia", 1); roadHub(); } }
+        ]
+      );
+    }
+
+    function roadShayneAndersonBanter() {
+      setFlag("roadSA");
+      adjustApproval("shayne", 1);
+      adjustApproval("anderson", 1);
+      show(
+`Anderson slings a strap higher on her shoulder. Shayne immediately complains.
+
+"You're going to wear yourself out before the dragon even sees us," he says.
+
+"That's rich coming from the man carrying enough coin records to bankrupt a monastery."
+
+Shayne huffs. "I manage the court's money. Someone must."
+
+"And I manage the part where people stop breathing," Anderson says, almost fondly.
+
+Mariah decides, wisely, not to interrupt the kind of argument that sounds suspiciously like flirting.`,
+        [
+          { text: "Tell Shayne to relax", action: () => { adjustApproval("shayne", 1); roadHub(); } },
+          { text: "Tell Anderson she is terrifyingly effective", action: () => { adjustApproval("anderson", 1); roadHub(); } }
+        ]
+      );
+    }
+
+    function villageDetour() {
+      show(
+`At the first village on the northern road, smoke curls from a collapsed cart near the well. A pair of wolves prowl the edge of the lane, more hungry than brave.
+
+The people look to Mariah.
+
+If she stops, she loses time.
+If she rides on, she keeps the dragon trail hot.
+
+And somewhere ahead, Scott still waits.`,
+        [
+          {
+            text: "Help the villagers and drive the wolves off",
+            action: () => {
+              add("compassion", 2);
+              add("courage", 1);
+              adjustApproval("anderson", 1);
+              adjustApproval("bailey", 1);
+              adjustApproval("jasmine", 1);
+              if (has("shayne")) adjustApproval("shayne", -1);
+              if (has("dahlia")) adjustApproval("dahlia", 1);
+              nextPartySelect();
+            }
+          },
+          {
+            text: "Press on to save time",
+            action: () => {
+              add("cunning", 1);
+              add("courage", 1);
+              adjustApproval("anderson", -1);
+              adjustApproval("bailey", -1);
+              adjustApproval("jasmine", -1);
+              if (has("shayne")) adjustApproval("shayne", 1);
+              if (has("dahlia")) adjustApproval("dahlia", -1);
+              nextPartySelect();
+            }
+          }
+        ]
+      );
+    }
+
+    function nextPartySelect() {
+      partyPicker(
+        "Night at the roadside camp",
+        "Choose who rides with you for the next leg. You may bring any number of companions.",
+        "campHub"
+      );
+    }
+
+    function campHub() {
+
+  const revisit = seen("campHub");
+  if (!revisit) setFlag("campHub");
+
+  let text = revisit
+    ? `Back at the fire, the logs crackle softly while the night keeps its distance.
+The others settle into the warmth, and Mariah can choose who to speak with next.`
+    : `Firelight flickers against the tents.
+
+The road has given way to a quieter night, but quiet only makes Mariah think harder about Scott.`;
+  if (has("jasmine")) text += "\nJasmine is leaning against a pack, eyes sharp, as if the dark itself might owe her money.";
+  if (has("bailey")) text += "\nBailey is feeding scraps to a camp dog that has already decided she is trustworthy.";
+  if (has("dahlia")) text += "\nDahlia watches the flames with a half-smile, blue light skating across her knuckles.";
+  if (has("anderson")) text += "\nAnderson sits cross-legged with her sword across her lap like a promise.";
+  if (has("shayne")) text += "\nShayne keeps checking supplies, then checking the horizon, then checking whether anyone is pretending not to notice him.";
+
+  if (!seen("campScott")) text += "\nMariah keeps thinking about Scott's hand on the balcony rail, warm and sure.";
+  if (has("jasmine") && !seen("campJasmine")) text += "\nJasmine glances up. 'Before you ask, yes, I have had romances in the castle. No, I am not telling you which nobleman cried first.'";
+  if (has("bailey") && !seen("campBailey")) text += "\nBailey shifts awkwardly. 'I can tell when someone is nervous. I just... apparently can't tell them that without sounding like a horse.'";
+  if (has("dahlia") && !seen("campDahlia")) text += "\nDahlia's eyes glitter. 'Truth first. Then the pretty lies people tell themselves.'";
+  if (has("anderson") && !seen("campAnderson")) text += "\nAnderson grins. 'If the dragon wants a fight, I say let it regret its hobbies.'";
+  if (has("shayne") && !seen("campShayne")) text += "\nShayne rubs a hand over his face. 'If Scott were here, he'd make this sound charming and make me do more work.'";
+
+  const choices = [];
+  if (!seen("campScott")) choices.push({ text: "Sit with Scott in your memory and admit how much you miss him", action: campScottMoment });
+  if (has("jasmine") && !seen("campJasmine")) choices.push({ text: "Ask Jasmine about her secret evenings in town", action: campJasmineMoment });
+  if (has("bailey") && !seen("campBailey")) choices.push({ text: "Ask Bailey to share what she notices before anyone else", action: campBaileyMoment });
+  if (has("dahlia") && !seen("campDahlia")) choices.push({ text: "Ask Dahlia how she handles being underestimated", action: campDahliaMoment });
+  if (has("anderson") && !seen("campAnderson")) choices.push({ text: "Let Anderson tell you what it means to defend the weak", action: campAndersonMoment });
+  if (has("shayne") && !seen("campShayne")) choices.push({ text: "Let Shayne explain what he knows about dragons and fear", action: campShayneMoment });
+  if (has("bailey") && has("dahlia") && !seen("campBD")) choices.push({ text: "Leave Bailey and Dahlia alone together for a dangerous minute", action: campBaileyDahliaBanter });
+  if (has("shayne") && has("anderson") && !seen("campSA")) choices.push({ text: "Set Shayne and Anderson arguing beside the fire", action: campShayneAndersonBanter });
+  choices.push({ text: "Rest and move on at dawn", action: canyonPartySelect });
+
+  show(text, choices);
+
+}
+function campScottMoment() {
+
+  setFlag("campScott");
+  add("scott", 2);
+  add("compassion", 1);
+  show(
+`Mariah sits with the memory of Scott's voice and lets it warm her for a moment.
+
+He had once told her, half-joking and half-not, "If a dragon ever steals me, do not do anything reckless."
+
+Mariah had laughed. "That's impossible."
+
+Scott had smiled that impossible smile. "That's what worries me."
+
+Now she answers the empty firelight, "Too late. I'm already reckless for you."
+
+And in her imagination, his voice turns low and amused: "Good. I was hoping you would come for me."
+
+Mariah lets the silence linger a heartbeat longer, as if he might answer again if she listens hard enough.`,
+    [
+      { text: "Return to the fire", action: campHub }
+    ]
+  );
+
+}
+function campJasmineMoment() {
+
+  setFlag("campJasmine");
+  adjustApproval("jasmine", 1);
+  add("cunning", 1);
+  show(
+`Jasmine snorts softly. "I used to sneak out through a wine cellar passage, a laundry chute, and one absolutely scandalous chapel window. Court thinks I never leave."
+
+Mariah raises an eyebrow. "And your romances?"
+
+Jasmine waves a hand. "Mixed results. One poet, two liars, one man who couldn't stop bowing. I prefer people who can keep up with me."
+
+Mariah smiles. "That sounds like you have standards."
+
+"I do," Jasmine says. "One of them is not dying in a dragon cave. Another is not pretending I can't be useful."
+
+She tilts her head toward the dark. "Scott likes the brave version of you. I suspect he also likes the part of you that comes back."`,
+    [
+      { text: "Ask for her best route toward the mountain", action: () => { add("cunning", 1); campHub(); } },
+      { text: "Smile at her honesty and thank her", action: () => { adjustApproval("jasmine", 1); campHub(); } }
+    ]
+  );
+
+}
+function campBaileyMoment() {
+
+  setFlag("campBailey");
+  adjustApproval("bailey", 1);
+  add("compassion", 1);
+  show(
+`Bailey folds her hands, then unfolds them again.
+
+"When people are scared, they talk faster. When they're lying, they talk less. Horses know that before most humans do."
+
+She glances at Mariah, cheeks going a little pink. "I mean... I think. Talking is hard."
+
+Mariah smiles gently, and Bailey visibly relaxes.
+
+"I can track the dragon by scent if the wind holds," Bailey says. "If it doesn't, I can still track the fear it leaves behind."
+
+She rubs the back of her neck. "Also, if Scott is in that cave, I hope he is being impossible and brave at the same time. That seems like him."`,
+    [
+      { text: "Tell her that she notices more than she thinks", action: () => { adjustApproval("bailey", 1); campHub(); } },
+      { text: "Ask if she learned that from animals or people", action: () => { add("cunning", 1); campHub(); } }
+    ]
+  );
+
+}
+function campDahliaMoment() {
+
+  setFlag("campDahlia");
+  adjustApproval("dahlia", 1);
+  add("cunning", 1);
+  show(
+`Dahlia lets a ribbon of blue flame coil through her fingers.
+
+"Everyone says a curse is ugly because they want it to be easy to dismiss," she murmurs. "But power is just power. The name people give it says more about them than it does about you."
+
+Her gaze sharpens. "I can spot a lie by the shape it makes in someone's breathing. It's useful. Annoying, but useful."
+
+Then she smiles, quick and bright. "Also, it scares liars. Which is delightful."
+
+Mariah folds her arms. "And if the lie is the dragon?"
+
+Dahlia's smile thins. "Then we let it think it still has the upper hand until it doesn't. That's the trick, isn't it? Making a monster underestimate the woman coming for her prince."`,
+    [
+      { text: "Tell her her fire is beautiful", action: () => { adjustApproval("dahlia", 1); campHub(); } },
+      { text: "Ask her to teach you how she reads deception", action: () => { add("cunning", 1); campHub(); } }
+    ]
+  );
+
+}
+function campAndersonMoment() {
+
+  setFlag("campAnderson");
+  adjustApproval("anderson", 1);
+  add("courage", 1);
+  show(
+`Anderson stretches her arms and laughs when Mariah notices the scars.
+
+"I fought wolves before I could afford a proper blade," she says. "The poor don't get songs about them. They get hunger, winter, and whatever the guards decide to ignore."
+
+Her smile turns fierce. "So I protect them. Fast."
+
+Then, softer: "If Scott is in there, take me with you to get him. I don't care how dangerous the cave is."
+
+Mariah nods. "That sounds less like a request and more like a vow."
+
+Anderson grins. "Good. I know how to keep a vow."`,
+    [
+      { text: "Promise her a place beside you in the fight", action: () => { adjustApproval("anderson", 1); campHub(); } },
+      { text: "Ask what she wants the kingdom to become", action: () => { add("compassion", 1); campHub(); } }
+    ]
+  );
+
+}
+function campShayneMoment() {
+
+  setFlag("campShayne");
+  adjustApproval("shayne", 1);
+  add("cunning", 1);
+  show(
+`Shayne holds out a page covered in careful notes.
+
+"Dragon behavior, court gossip, supply lines, and the probability that Scott has already insulted the monster to its face," he says.
+
+Mariah smiles despite herself. "He's likely to do that."
+
+"Exactly." Shayne rubs his jaw. "He's brilliant, and he knows it. Which is usually charming until it gets him captured."
+
+He hesitates, then adds quietly, "He trusts you more than he trusts anyone who isn't me."
+
+Mariah glances down at the notes. "You care about him a lot."
+
+Shayne looks away, then back. "He's my best friend. Also, he is infuriatingly good at making me believe impossible rescues are normal."`,
+    [
+      { text: "Tell him you'll bring Scott home", action: () => { add("scott", 1); campHub(); } },
+      { text: "Ask what the dragon may be hiding", action: () => { add("cunning", 1); campHub(); } }
+    ]
+  );
+
+}
+function campBaileyDahliaBanter() {
+      setFlag("campBD");
+      adjustApproval("bailey", 1);
+      adjustApproval("dahlia", 1);
+      show(
+`Bailey reaches for a log. Dahlia reaches for the same log at the same time.
+
+They both freeze.
+
+Bailey: "You can have it."
+
+Dahlia: "You can have it."
+
+Bailey glances sideways. "You're doing that on purpose."
+
+Dahlia's smile is a little too pleased. "Doing what?"
+
+"The thing where you make it hard to tell whether you're flirting or insulting me."
+
+Dahlia laughs softly. "That is because I am doing both."`,
+        [
+          { text: "Tell Bailey she blushes beautifully", action: () => { adjustApproval("bailey", 1); campHub(); } },
+          { text: "Tell Dahlia she is unfairly charming", action: () => { adjustApproval("dahlia", 1); campHub(); } }
+        ]
+      );
+    }
+
+    function campShayneAndersonBanter() {
+      setFlag("campSA");
+      adjustApproval("shayne", 1);
+      adjustApproval("anderson", 1);
+      show(
+`Shayne is writing numbers in the dirt. Anderson leans over his shoulder.
+
+Anderson: "That one looks wrong."
+
+Shayne: "That's because you're looking at it like a sword problem."
+
+Anderson: "Isn't everything a sword problem?"
+
+Shayne glances up, exasperated and fond all at once. "You are the reason the treasury keeps locks on the windows."
+
+Anderson laughs. "You say that like you dislike me."
+
+Shayne's ears go a little pink. "I said no such thing."`,
+        [
+          { text: "Tell Shayne he sounds worried because he cares", action: () => { adjustApproval("shayne", 1); campHub(); } },
+          { text: "Tell Anderson she should not bully the only man counting coins", action: () => { adjustApproval("anderson", 1); campHub(); } }
+        ]
+      );
+    }
+
+    function canyonPartySelect() {
+      partyPicker(
+        "The canyon road",
+        "Choose who will guide you closer to the dragon’s mountain.",
+        "canyonHub"
+      );
+    }
+
+    function canyonHub() {
+
+  const revisit = seen("canyonHub");
+  if (!revisit) setFlag("canyonHub");
+
+  let text = revisit
+    ? `Back at the canyon wall, the stone feels closer now, as if the mountain itself is listening.
+There is less room for hesitation here, and more room for truth.`
+    : `The path narrows into a canyon where the stone remembers old fire.
+
+The air tastes like ash and rain. Somewhere ahead, the dragon's cave waits.`;
+  if (has("jasmine")) text += "\nJasmine snaps her gaze to a crack in the wall and smiles. 'There is an old tunnel here. Of course there is.'";
+  if (has("bailey")) text += "\nBailey kneels, studying claw marks. 'It came through here recently. Fast, angry, and probably hungry.'";
+  if (has("dahlia")) text += "\nDahlia watches the shadows with narrowed eyes. 'There is magic here. Not necessarily dragon magic. That's worse.'";
+  if (has("anderson")) text += "\nAnderson cracks her knuckles. 'If anything jumps out, I'm meeting it first.'";
+  if (has("shayne")) text += "\nShayne swallows hard and keeps going anyway. 'If Scott is frightened, he hides it badly. That dragon should not get to do that to him.'";
+
+  if (!seen("canyonScott")) text += "\nMariah's pulse stutters at the thought of Scott somewhere ahead, bound or caged, still trying to look brave.";
+  if (has("jasmine") && !seen("canyonJasmine")) text += "\nJasmine glances at Mariah. 'I know how he looks at you. It is disgusting and adorable.'";
+  if (has("bailey") && !seen("canyonBailey")) text += "\nBailey points at a ridge line. 'There. Fresh disturbance. Maybe a ledge. Maybe a hidden entrance. I can tell if we get closer.'";
+  if (has("dahlia") && !seen("canyonDahlia")) text += "\nDahlia hums. 'If the dragon lies, I will know. If the dragon is honest, I will be offended.'";
+  if (has("anderson") && !seen("canyonAnderson")) text += "\nAnderson smirks. 'You know what would be romantic? A cave with fewer dragons.'";
+  if (has("shayne") && !seen("canyonShayne")) text += "\nShayne mutters, 'Scott owes me so many apologies if we survive this.'";
+
+  const choices = [];
+  if (!seen("canyonScott")) choices.push({ text: "Admit to the group just how much Scott means to you", action: canyonScottMoment });
+  if (has("jasmine") && !seen("canyonJasmine")) choices.push({ text: "Trust Jasmine's knowledge of hidden tunnels", action: canyonJasmineMoment });
+  if (has("bailey") && !seen("canyonBailey")) choices.push({ text: "Let Bailey track the dragon's route and scent", action: canyonBaileyMoment });
+  if (has("dahlia") && !seen("canyonDahlia")) choices.push({ text: "Ask Dahlia to read the shadows for illusions", action: canyonDahliaMoment });
+  if (has("anderson") && !seen("canyonAnderson")) choices.push({ text: "Let Anderson clear the way by force", action: canyonAndersonMoment });
+  if (has("shayne") && !seen("canyonShayne")) choices.push({ text: "Press Shayne for final advice about the dragon", action: canyonShayneMoment });
+  choices.push({ text: "Approach the cave mouth", action: finalPrep });
+  show(text, choices);
+
+}
+function canyonScottMoment() {
+
+  setFlag("canyonScott");
+  add("scott", 2);
+  add("compassion", 1);
+  show(
+`Mariah looks at the dark mouth of the canyon and says the truth aloud.
+
+"Scott is not just my prince. He's the person who sees through me, keeps me honest, and smiles at me like I'm the answer to a question he hasn't learned how to ask."
+
+The words hang in the air, fragile and bright.
+
+Mariah swallows and adds, softer, "And if he teases me when I say that, I will kiss him anyway."
+
+Jasmine's expression softens. Anderson grunts approval. Bailey looks like she wants to say something kind. Dahlia smiles like she knew all along. Shayne looks relieved enough to collapse.`,
+    [{ text: "Keep moving", action: canyonHub }]
+  );
+
+}
+function canyonJasmineMoment() {
+
+  setFlag("canyonJasmine");
+  adjustApproval("jasmine", 1);
+  add("cunning", 1);
+  show(
+`Jasmine kneels, presses her hand against the stone, and smiles.
+
+"There. An old service passage. The court sealed it years ago because they are dramatic and incompetent. It leads behind the lower chambers of the cave."
+
+She glances at Mariah. "If Scott is in there, this may be the cleanest route."
+
+Then, with a faint grin: "Also, I once escaped a disastrous date through a pantry door. I am not above practical romance."
+
+Mariah smiles. "You say that like it's a point of pride."
+
+"It is," Jasmine says. "Practical romance often survives longer than poetic romance."`,
+    [
+      { text: "Tell her practical romance suits her", action: () => { adjustApproval("jasmine", 1); canyonHub(); } },
+      { text: "Ask her to lead the way later", action: () => { add("cunning", 1); canyonHub(); } }
+    ]
+  );
+
+}
+function canyonBaileyMoment() {
+
+  setFlag("canyonBailey");
+  adjustApproval("bailey", 1);
+  add("compassion", 1);
+  show(
+`Bailey crouches and touches a print at the edge of the rock.
+
+"The dragon was here recently. It was carrying something. Or someone." She pauses. "Scott, maybe. I'm sorry."
+
+Mariah's jaw tightens.
+
+Bailey rises and gives her a small, steady look. "I'm not good at speeches. But I am good at finding the trail back to the thing that matters."
+
+She points the way forward with surprising certainty.
+
+"And," she adds, almost shyly, "if Scott says something ridiculous when you get to him, that will be a very good sign. It means he's still himself."`,
+    [
+      { text: "Thank her for seeing what others miss", action: () => { adjustApproval("bailey", 1); canyonHub(); } },
+      { text: "Tell her her instincts are a gift", action: () => { add("courage", 1); canyonHub(); } }
+    ]
+  );
+
+}
+function canyonDahliaMoment() {
+
+  setFlag("canyonDahlia");
+  adjustApproval("dahlia", 1);
+  add("cunning", 1);
+  show(
+`Dahlia lifts a hand, and the blue fire between her fingers shivers.
+
+"There's an enchantment ahead," she says. "A lie woven into the cave mouth. Most likely to make us misjudge distance. Clever."
+
+She looks at Mariah. "The dragon is hiding more than a prisoner. I can smell a bargain in this magic."
+
+Then she smiles, sharp and delighted. "I love it when monsters think they are the smartest thing in the room."
+
+Mariah watches the flame. "And if it is also lying about Scott?"
+
+Dahlia's expression hardens. "Then I will be very rude to the dragon. Potentially spectacularly rude."`,
+    [
+      { text: "Ask her to break the lie when it matters", action: () => { adjustApproval("dahlia", 1); canyonHub(); } },
+      { text: "Tell her you trust her judgment", action: () => { add("compassion", 1); canyonHub(); } }
+    ]
+  );
+
+}
+function canyonAndersonMoment() {
+
+  setFlag("canyonAnderson");
+  adjustApproval("anderson", 1);
+  add("courage", 1);
+  show(
+`Anderson steps forward and slams her blade into the rock just enough to make sparks jump.
+
+"Good," she says. "The cave is solid. I hate caves. Caves mean being trapped with things that want to bite."
+
+She turns to Mariah. "If the dragon comes for us, I take the first hit. That's not a suggestion."
+
+The way she says it is not boastful. It is a vow.
+
+Mariah meets her eyes. "And if I get to the dragon first?"
+
+Anderson laughs once, sharp and delighted. "Then I follow your lead and hit harder."`,
+    [
+      { text: "Promise to cover her flank", action: () => { adjustApproval("anderson", 1); canyonHub(); } },
+      { text: "Tell her the kingdom needs people like her", action: () => { add("compassion", 1); canyonHub(); } }
+    ]
+  );
+
+}
+function canyonShayneMoment() {
+
+  setFlag("canyonShayne");
+  adjustApproval("shayne", 1);
+  add("cunning", 1);
+  show(
+`Shayne wipes his palms on his trousers and draws a breath.
+
+"All right. Final theory." He ticks points off on his fingers. "Dragons love power, hoard meaning, and use fear as a lever. If Scott is alive, the creature wants leverage more than food."
+
+He looks at Mariah, worried and earnest. "Which means Scott is probably bait, not the prize."
+
+Then, quieter: "Which means your choices in there matter more than your sword."
+
+Mariah gives him a long look. "You really did study dragons."
+
+"I studied what terrified me." He hesitates. "And what terrified Scott. Which turned out to be the same thing."`,
+    [
+      { text: "Tell him his advice calms you", action: () => { adjustApproval("shayne", 1); canyonHub(); } },
+      { text: "Ask him if Scott would be annoyed by this plan", action: () => { add("scott", 1); canyonHub(); } }
+    ]
+  );
+
+}
+function finalPrep() {
+
+  const leavers = state.party.filter(k => state.approval[k] <= -2);
+
+  if (leavers.length) {
+    let text = `As the cave mouth darkens ahead, not everyone is willing to go further.
+
+`;
+
+    leavers.forEach(k => {
+      if (k === "jasmine") text += "Jasmine crosses her arms. 'I will not be bullied by a dragon into a stupid entrance. I will, however, mark the better one.' She points to the hidden tunnel and steps aside.\n";
+      if (k === "bailey") text += "Bailey swallows hard and shakes her head. 'I can find the trail back out. I can't promise I can watch someone die in there.' She stays behind with her bow lowered.\n";
+      if (k === "dahlia") text += "Dahlia's blue fire goes still. 'If you choose lies over sense, I'm not helping you walk into them.' She remains outside, furious and brilliant.\n";
+      if (k === "anderson") text += "Anderson exhales through her nose. 'I came to save Scott, not to be treated like a delay.' She hands Mariah a grim nod and stands guard at the entrance.\n";
+      if (k === "shayne") text += "Shayne adjusts his notes with a hard swallow. 'I can't follow a plan that ignores Scott's life.' He stays at the threshold, upset but steady.\n";
+    });
+
+    text += "\nThe ones who remain tighten into a smaller circle around Mariah. The cave is close now. So is the truth.";
+
+    state.party = state.party.filter(k => state.approval[k] > -2);
+
+    show(text, [{ text: "Enter the cave", action: finalCaveChoice }]);
+    return;
+  }
+
+  show(
+`The cave breathes cold air and old smoke.
+
+Somewhere inside, Scott is there.
+Somewhere inside, the dragon is waiting.
+And Mariah's companions hold the line around her like a second heartbeat.
+
+The moment feels smaller than a battle and larger than a promise.`,
+    [{ text: "Enter the cave", action: finalCaveChoice }]
+  );
+
+}
+function finalCaveChoice() {
+
+  let text = `The cave opens into a chamber lit by fire and shards of trapped gold.
+
+Scott is chained on a stone ledge near the center, bloodied but defiant. Even now, he looks up with that impossible smile.
+
+"Mariah," he says, voice rough and warm all at once. "You took your time."
+
+The dragon lifts its head from the hoard.
+
+"Good," it rumbles. "The knight arrives. The prince matters more than the crown."
+
+`;
+  if (has("jasmine")) text += "Jasmine murmurs, 'The left wall is false stone. There may be another path behind it.'\n";
+  if (has("bailey")) text += "Bailey spots a trail of claw-marks and a loose chain anchor. 'He was moved recently. That can help us.'\n";
+  if (has("dahlia")) text += "Dahlia's eyes narrow. 'The dragon has an illusion folded around the room. I can break it if you give me a second.'\n";
+  if (has("anderson")) text += "Anderson rolls one shoulder. 'Tell me where to hit. I'll do the rest.'\n";
+  if (has("shayne")) text += "Shayne looks at Scott, terrified and furious in equal measure. 'He is trying to pretend he is fine. Obviously not.'\n";
+  text += "\nScott's gaze finds Mariah's and lingers there like a vow.\n'You came for me.'\n\nMariah can answer in more than one way.";
+
+  show(
+    text,
+    [
+      { text: "Tell Scott you always would", action: () => { add("scott", 2); finalBattle(); } },
+      { text: "Use Jasmine's tunnel route", action: () => { if (has("jasmine")) add("cunning", 2); finalBattle(); } },
+      { text: "Order a direct assault", action: () => { add("courage", 2); finalBattle(); } },
+      { text: "Try to negotiate with the dragon", action: () => { add("cunning", 1); finalBattle(); } }
+    ]
+  );
+
+}
+function finalBattle() {
+      let support = 0;
+      state.party.forEach(k => {
+        if (state.approval[k] >= 0) support += 1;
+      });
+
+      let intro = `The dragon rises, vast as a ruin and older than the songs about Mariah.
+
+Fire blooms across the chamber.
+
+Scott strains at the chains and shouts, "Mariah, don't do something heroic and irreversible!"
+
+The dragon laughs.
+
+Mariah has ${support} active support voice${support === 1 ? "" : "s"} with her in the cave, and every one of them matters.`;
+
+      show(
+        intro,
+        [
+          { text: "Trust Scott and reach for the bond between them", action: trustScottEnding },
+          { text: "Attack the dragon head-on", action: attackEnding },
+          { text: "Use finesse and negotiation", action: negotiateEnding },
+          { text: "Exploit the hidden tunnel route", action: tunnelEnding }
+        ]
+      );
+    }
+
+    function trustScottEnding() {
+
+  const enough = state.scott >= 7 && state.courage >= 2;
+
+  if (enough) {
+    show(
+`Mariah stops fighting the shape of the moment and chooses Scott.
+
+Not the fear. Not the fire.
+Him.
+
+Scott's expression changes first into disbelief, then into something tender enough to hurt.
+
+The dragon lunges, but Dahlia's blue flame blinds it; Anderson drives it back; Bailey finds the chain anchor; Shayne shouts the timing; and Jasmine's hidden route lets Mariah reach Scott before the second strike.
+
+She tears the chains free.
+
+Scott stumbles into her arms, laughing once, breathless and shaking. "You are outrageous."
+
+Mariah cups his face. "And you are home."
+
+Jasmine watches from the side and mutters, "Disgusting. Beautiful. Effective."
+
+Scott lowers his forehead to Mariah's. "I love you."
+
+This time, there is nothing in the way.`,
+      [
+        { text: "Kiss him", action: () => end("The cave goes silent except for their breathing and the dragon's fading roar. Mariah kisses Scott like a promise fulfilled.") },
+        { text: "Hold him close", action: () => end("Mariah holds him tight, and for once neither of them has to be brave alone.") }
+      ]
+    );
+  } else {
+    show(
+`Mariah reaches for Scott, but the dragon's magic snaps tighter than expected.
+
+Scott meets her eyes anyway, forcing a smile through the pain. "That was still the right choice," he says.
+
+The rescue works — almost. The chains break, the ledge gives way, and Scott gets free, but the dragon takes a wound that sends fire through the whole chamber.
+
+The escape is messy, beautiful, and too close.
+
+Scott survives.
+
+The kingdom will sing of it.
+
+Mariah will remember the cost.
+
+When they finally reach the mouth of the cave, Scott is shaking with exhaustion and smiling only because Mariah is there.`,
+      [
+        { text: "Gather your people and flee", action: () => end("Scott is saved, but the victory feels bruised and unfinished. Still, he is alive, and his hand finds Mariah's in the smoke.") },
+        { text: "Swear you'll finish this another day", action: () => end("The dragon retreats into the dark. Scott leans against Mariah as the cave collapses behind them. They made it out together — barely.") }
+      ]
+    );
+  }
+
+}
+function attackEnding() {
+      const strongEnough = state.courage >= 4 && (state.approval.anderson >= 0 || state.approval.bailey >= 0);
+
+      if (strongEnough) {
+        show(
+`Mariah charges.
+
+Anderson meets the dragon head-on, blade screaming against scale. Bailey calls out the weak angle beneath the left wing. Shayne yells the timing. Jasmine points to the hidden support beam. Dahlia wraps the chamber in blue fire.
+
+Scott, still chained, laughs hoarsely through the pain. "I always did love it when you were terrifying."
+
+Mariah drives the dragon backward with pure force and perfect timing.
+
+The beast falls.
+
+The cave shakes. Gold rains from the ceiling. Scott is freed, breathless and grinning despite everything.
+
+"You are legend," he says.
+
+Mariah, flushed and fierce, answers, "Only if you survive long enough to say it again."`,
+          [
+            { text: "Take Scott home", action: () => end("The dragon falls. The kingdom lives. Scott lives. And the songs about Mariah become louder than ever.") },
+            { text: "Let him steal one kiss before leaving", action: () => end("In the wreckage of the cave, Scott kisses Mariah like he has waited his whole life for the right ending.") }
+          ]
+        );
+      } else {
+        end("Mariah swings hard, but the dragon is too much. Fire floods the chamber. Darkness follows.");
+      }
+    }
+
+    function negotiateEnding() {
+      const enough = state.cunning >= 4 && state.approval.shayne >= 0;
+
+      if (enough) {
+        show(
+`Mariah lowers her blade just enough to make the dragon hesitate.
+
+Dahlia's eyes narrow, reading the lie in the creature's breathing.
+Shayne calls out the pattern in its hoard and its fear.
+Jasmine spots the old bond-runes carved into the cave wall.
+Bailey notices the chain route.
+Anderson doesn't lower her sword at all, which is somehow also helpful.
+
+Mariah speaks to the dragon as if it can hear reason and consequence both.
+
+It can.
+
+The creature wanted leverage, not war.
+
+Scott looks up, stunned, as the dragon's grip loosens. "You negotiated with it?"
+
+Mariah glances back. "I also threatened it."
+
+Scott laughs, still shackled, and somehow that laugh helps break the spell.`,
+          [
+            { text: "Finish the deal and free Scott", action: () => end("The dragon yields. Scott is returned. The kingdom will argue for years about whether this counts as mercy or brilliance.") },
+            { text: "Refuse the dragon's final demand", action: () => end("Mariah outplays the creature and drags Scott out by choosing a smarter path than the monster expected.") }
+          ]
+        );
+      } else {
+        end("The dragon likes the idea of a bargain better than the reality of one. It strikes before Mariah can finish the first sentence.");
+      }
+    }
+
+    function tunnelEnding() {
+      const enough = has("jasmine") && state.approval.jasmine >= 0;
+
+      if (enough) {
+        show(
+`Jasmine snaps her fingers and points Mariah toward the false wall.
+
+"There. Move."
+
+The hidden passage opens behind the dragon's hoard, narrow and old and exactly the sort of thing only Jasmine would know about.
+
+Bailey spots the safest footing.
+Dahlia blinds the guard-fire.
+Anderson cuts the chain lock.
+Shayne gives the timing.
+Mariah slips through the tunnel like a blade through silk.
+
+Scott sees her first and breathes, "That is absurdly attractive."
+
+Mariah snorts despite herself. "Save the compliments until we're outside."
+
+"Never," he says, because of course he doesn't.`,
+          [
+            { text: "Free Scott and run", action: () => end("The tunnel route wins the day. Scott is alive, the dragon is furious, and Mariah is already planning how to kiss him once they're in the open air.") },
+            { text: "Free Scott and turn back on the dragon", action: () => end("With Jasmine's route and the others' support, Mariah turns the cave into a trap and carries Scott out through the smoke.") }
+          ]
+        );
+      } else {
+        end("Without Jasmine's trust, the tunnel leads into a dead end and the dragon notices Mariah first.");
+      }
+    }
+
+    const SCENES = {
+      title: titleScene,
+      guide: guideSceneRender,
+      intro: introScene,
+      kingAppeal,
+      roadPartySelect,
+      roadHub,
+      roadScottMoment,
+      roadJasmineMoment,
+      roadBaileyMoment,
+      roadDahliaMoment,
+      roadAndersonMoment,
+      roadShayneMoment,
+      roadBaileyDahliaBanter,
+      roadShayneAndersonBanter,
+      villageDetour,
+      campHub,
+      campScottMoment,
+      campJasmineMoment,
+      campBaileyMoment,
+      campDahliaMoment,
+      campAndersonMoment,
+      campShayneMoment,
+      campBaileyDahliaBanter,
+      campShayneAndersonBanter,
+      canyonPartySelect,
+      canyonHub,
+      canyonScottMoment,
+      canyonJasmineMoment,
+      canyonBaileyMoment,
+      canyonDahliaMoment,
+      canyonAndersonMoment,
+      canyonShayneMoment,
+      finalPrep,
+      finalCaveChoice,
+      finalBattle
+    };
+
+    function render() {
+      renderPanel();
+
+      if (ui.screen === "title") {
+        titleScene();
+      } else if (ui.screen === "guide") {
+        guideSceneRender();
+      } else if (ui.screen === "picker") {
+        renderPicker();
+      } else if (SCENES[ui.screen]) {
+        SCENES[ui.screen]();
+      } else {
+        ui.screen = "title";
+        titleScene();
+      }
+
+      renderShell();
+      saveGameToStorageOnly();
+    }
+
+    function continueGame() {
+      if (loadGame()) {
+        renderShell();
+        render();
+      } else {
+        ui.message = "No saved game found yet.";
+        renderShell();
+        render();
+      }
+    }
+
+    function bindTopButtons() {
+      document.getElementById("saveBtn").onclick = () => {
+        if (ui.screen !== "title") {
+          ui.message = "Game saved.";
+          saveGameToStorageOnly();
+          renderShell();
+          render();
+        }
+      };
+
+      document.getElementById("continueBtn").onclick = continueGame;
+
+      document.getElementById("newBtn").onclick = () => {
+        clearSave();
+        resetGame();
+        ui.screen = "intro";
+        renderShell();
+        render();
+        saveGameToStorageOnly();
+      };
+
+      document.getElementById("guideBtn").onclick = () => {
+        ui.screen = "guide";
+        renderShell();
+        render();
+      };
+    }
+
+    bindTopButtons();
+    renderShell();
+
+    if (localStorage.getItem(SAVE_KEY)) {
+      ui.message = "A saved game is available.";
+    }
+    render();
+  </script>
+</body>
+</html>
